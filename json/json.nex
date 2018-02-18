@@ -1,0 +1,37 @@
+/[0-9]+/ {
+	return yylex.genToken(INT_LITERAL, lval)
+}
+
+/"[^"]*"/ {
+	return yylex.genToken(STRING_LITERAL, lval)
+}
+
+/false|true/ {
+    return yylex.genToken(BOOL_LITERAL, lval)
+}
+
+/[{},:;\[\]]/ {
+	return yylex.genToken(pogo.TokenType(yylex.Text()[0]), lval)
+}
+
+/[ \t\n]+/            { /* eat up whitespace */ }
+/\/\/[^\n]*/          { /* eat up one-line comments */ }
+/\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*\//
+                      { /* eat up multi-line comments. ugly but functional regex */ }
+/./                   { yylex.Error(fmt.Sprintf("unrecognized character: %v", yylex.Text())) }
+//
+package json
+
+import (
+	"fmt"
+
+	"github.com/tgascoigne/pogo"
+)
+
+func (yylex *Lexer) genToken(tok pogo.TokenType, lval *yySymType) int {
+	lval.tok = pogo.Item{
+		Token: tok,
+		Value: yylex.Text(),
+	}
+	return int(yylex.Text()[0])
+}
