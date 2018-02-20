@@ -3,13 +3,9 @@ package pogo
 import (
 	"fmt"
 	"reflect"
-
-	"gitea.local/tom/calx/errors"
 )
 
 type Parser func(p ParseState) (Parsed, ParseState)
-
-var ErrExpected = errors.New("expected '%v' got '%v'")
 
 // NilParsed is returned when nothing could be parsed, but no error was raised
 var NilParsed = NilParsedType{}
@@ -29,7 +25,7 @@ func Tok(token TokenType) Parser {
 			return nextTok(ps)
 		}
 
-		ps = addError(ps, item, ErrExpected.Format(token, item))
+		ps = addError(ps, item, fmt.Errorf("expected '%v' got '%v'", token, item))
 		return ErrParsed, ps
 	}
 }
